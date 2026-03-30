@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
+
+  <h2 class="text-2xl font-bold mb-4 text-gray-700">Student Manager</h2>
+
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <input id="name" type="text" placeholder="Name"
+      class="border p-2 rounded">
+    <input id="phone" type="text" placeholder="Phone"
+      class="border p-2 rounded">
+    <input id="email" type="email" placeholder="Email"
+      class="border p-2 rounded">
+    <input id="mark" type="number" placeholder="Mark"
+      class="border p-2 rounded">
+  </div>
+
+  <button onclick="addStudent()"
+    class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-700"> 
+    add Student
+  </button>
+
+
+  <input id="search" type="text" placeholder="Search by name..."
+    class="border p-2 rounded w-full mt-4"
+    onkeyup="renderStudents()">
+
+  <table class="w-full mt-4 border">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="p-2">Name</th>
+        <th class="p-2">Phone</th>
+        <th class="p-2">Email</th>
+        <th class="p-2">Mark</th>
+        <th class="p-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+  </table>
+
+</div>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+
+const addStudent = () => {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value;
+  const email = document.getElementById("email").value.trim();
+  const mark = document.getElementById("mark").value;
+
+if (!name) {
+  alert("Name is required!");
+  return;
+}
+
+if (students.some(s => s.email === email)) {
+  alert("Email already exists!");
+  return;
+}
+
+students.push({ name, phone, email, mark });
+
+console.log("Saving:", students);
+
+localStorage.setItem("students", JSON.stringify(students));
+
+clearForm();
+renderStudents();
+};
+
+const renderStudents = () => {
+  const search = document.getElementById("search").value.toLowerCase();
+
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(search)
+  );
+
+  document.getElementById("studentTable").innerHTML =
+    filtered.map((s, index) => `
+      <tr class="text-center border-t">
+        <td class="p-2">${s.name}</td>
+        <td class="p-2">${s.phone}</td>
+        <td class="p-2">${s.email}</td>
+        <td class="p-2">${s.mark}</td>
+        <td class="p-2">
+          <button onclick="deleteStudent(${index})"
+            class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `).join("");
+};
+
+
+const deleteStudent = (index) => {
+  if (confirm("Delete this student?")) {
+    students.splice(index, 1);
+    localStorage.setItem("students", JSON.stringify(students));
+    renderStudents();
+  }
+};
+
+
+const clearForm = () => {
+  ["name", "phone", "email", "mark"].forEach(id =>
+    document.getElementById(id).value = ""
+  );
+};
+
+renderStudents();
+</script>
+
+</body>
+</html>
